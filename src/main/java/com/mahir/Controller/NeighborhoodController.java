@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rest/api/neighborhood")
-@CrossOrigin(origins = "http://localhost:5174") 
+@CrossOrigin(origins = "http://localhost:5173") 
 public class NeighborhoodController implements INeighborhoodController {
 
     private final INeighborhoodService neighborhoodService;

@@ -14,7 +14,7 @@ import com.mahir.Service.imp.ICustomerService;
 
 @RestController
 @RequestMapping("/Request/Mapping")
-@CrossOrigin(origins = "http://localhost:5174") 
+@CrossOrigin(origins = "http://localhost:5173") 
 
 public class CustomerController implements ICustomerController {
 

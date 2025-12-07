@@ -11,16 +11,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mahir.Controller.imp.ICarController;
+import com.mahir.DTO.PhotoRequest;
 import com.mahir.Entity.Car;
+import com.mahir.Service.CarImageService;
 import com.mahir.Service.CarService;
 
 @RestController
 @RequestMapping("/api/car")
-@CrossOrigin(origins = "http://localhost:5174")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CarController implements  ICarController {
 
     @Autowired
     private CarService carService;
+
+    @Autowired
+    private CarImageService carImageService;
 
 
     @Override
@@ -35,5 +40,12 @@ public class CarController implements  ICarController {
     public List<Car> getAllCars() {
         List<Car> cars = carService.getAllCars();
         return carService.changeCarDTO(cars);
+    }
+
+
+    @PostMapping("/PhotoSave")
+    @Override
+    public void Carphotosave(@RequestBody PhotoRequest photoRequest) {
+       carImageService.saveCarImageRecord(photoRequest);
     }
 }

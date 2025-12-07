@@ -1,6 +1,5 @@
 package com.mahir.Service;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -11,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
+import com.mahir.DTO.CustomerAccountDTO;
 import com.mahir.Entity.Account;
 import com.mahir.Service.imp.IAccountService;
 
@@ -50,4 +50,31 @@ public Account saveAccount(Account account) {
 
     return account;
 }
+public CustomerAccountDTO getCustomerAccountByUserId(long userId) {
+        String sql = "SELECT c.first_name, c.last_name, c.tckn, c.birth_of_date, " +
+                     "a.account_no, a.iban, a.amount, a.currency_code " +
+                     "FROM Customer c " +
+                     "JOIN Account a ON c.account_id = a.id " +
+                     "WHERE c.user_id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{userId}, (rs, rowNum) -> 
+                new CustomerAccountDTO(
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("tckn"),
+                    rs.getDate("birth_of_date"),
+                    rs.getString("account_no"),
+                    rs.getString("iban"),
+                    rs.getBigDecimal("amount"),
+                    rs.getString("currency_code")
+                )
+            );
+        } catch (Exception e) {
+           
+            System.out.println("Hata oluştu: " + e.getMessage());
+            return null;
+        }
+    }
 }
+

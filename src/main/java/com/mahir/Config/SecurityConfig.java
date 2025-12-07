@@ -37,7 +37,10 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests((request) -> request
 
-                        .requestMatchers("/authenticate", "/isauthenticate","/api/city/save","/rest/api/district/save","/rest/api/neighborhood/save","/Rest/Api/SaveAddress","/api/saveAccount","/Request/Mapping/save","/api/gallerists/save").permitAll()
+                        .requestMatchers("/authenticate", "/isauthenticate", "/api/city/save",
+                                "/rest/api/district/save", "/rest/api/neighborhood/save", "/Rest/Api/SaveAddress",
+                                "/api/saveAccount", "/Request/Mapping/save", "/api/gallerists/save")
+                        .permitAll()
 
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider)

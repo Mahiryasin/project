@@ -1,6 +1,7 @@
 package com.mahir.Service.imp;
 
 import java.util.List;
+
 import com.mahir.Entity.Gallerist;
 
 public interface IGalleristService {

@@ -11,7 +11,7 @@ import com.mahir.DTO.AddressDetailDTO;
 import com.mahir.Service.AddressService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5174") 
+@CrossOrigin(origins = "http://localhost:5173") 
 public class GETAllAddressController implements IGetAllAddressController {
 
    @Autowired
