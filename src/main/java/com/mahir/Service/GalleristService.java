@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,7 +24,6 @@ public class GalleristService implements IGalleristService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public GalleristService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -93,4 +93,30 @@ public class GalleristService implements IGalleristService {
         String sql = "SELECT id, user_id, create_date, first_name, last_name, address_id FROM Gallerist";
         return jdbcTemplate.query(sql, galleristRowMapper);
     }
+    
+    public Gallerist getGalleristByCarId(int carId) {
+        String sql = """
+            SELECT g.* FROM Gallerist g
+            INNER JOIN Gallerist_Car gc ON g.id = gc.gallerist_id
+            WHERE gc.car_id = ?
+        """;
+
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Gallerist gallerist = new Gallerist();
+                gallerist.setId(rs.getInt("id"));
+                gallerist.setFirstName(rs.getString("first_name"));
+                gallerist.setLastName(rs.getString("last_name"));
+                gallerist.setUserId(rs.getInt("user_id"));
+                gallerist.setAddressId(rs.getInt("address_id"));
+                return gallerist;
+            }, carId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        } catch (Exception e) {
+            System.out.println("Bir hata oluştu: " + e.getMessage());
+            return null;
+        }
+    }
+    
 }

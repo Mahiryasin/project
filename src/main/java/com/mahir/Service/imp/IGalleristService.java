@@ -7,4 +7,6 @@ import com.mahir.Entity.Gallerist;
 public interface IGalleristService {
     Gallerist saveGallerist(Gallerist gallerist);
     List<Gallerist> getAllGallerists();
+     public Gallerist getGalleristByCarId(int carId);
+
 }

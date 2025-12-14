@@ -17,6 +17,7 @@ import com.mahir.DTO.CarWithOwnerDTO;
 import com.mahir.DTO.PhotoRequest;
 import com.mahir.Entity.Car;
 import com.mahir.Service.CarImageService;
+import com.mahir.Service.CurrencyRatesService;
 import com.mahir.Service.imp.ICarService;
 
 @RestController
@@ -29,6 +30,10 @@ public class CarController implements ICarController {
 
     @Autowired
     private CarImageService carImageService;
+
+    @Autowired
+    private CurrencyRatesService currencyRates;
+
 
     @Override
     @PostMapping("/save")
@@ -74,4 +79,8 @@ public class CarController implements ICarController {
    public CarWithOwnerDTO getMaxPrice(@PathVariable int userId,@PathVariable String currency) {
    return carService.getMaxPrice(userId, currency);
    }
+
+
+  
+
 }

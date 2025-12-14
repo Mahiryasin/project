@@ -94,6 +94,7 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
