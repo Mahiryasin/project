@@ -19,6 +19,16 @@ public int getSalableCarCountByUserId(int userId) ;
            public List<com.mahir.DTO.GalleristCarDetailsDTO> getOldestCarsByUserId(int userId) ;
     public void deleteCarById(int carId);
 
+     public List<com.mahir.DTO.GalleristCarDetailsDTO> getSoldCarsByUserId(int userId);
+
+
+int getSoldCarCountByUserId(int userId);
+
+List<GalleristCarDetailsDTO> getNewestSoldCarsByUserId(int userId);
+
+List<GalleristCarDetailsDTO> getOldestSoldCarsByUserId(int userId);
+public java.math.BigDecimal getTotalEarningsByUserIdAndCurrency(int userId, String currencyCode);
+
 
 
 }

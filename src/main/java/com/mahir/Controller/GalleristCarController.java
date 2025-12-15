@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mahir.Controller.imp.IGalleristCarController;
@@ -81,4 +82,41 @@ public List<GalleristCarDetailsDTO> getOldestCarsByUserId(@PathVariable int user
 @Override
 public void deleteCarById(@PathVariable int carId) {
    galleristCarService.deleteCarById(carId);
-}}
+}
+
+
+@GetMapping("/sold-cars/{userId}")
+@Override
+public List<com.mahir.DTO.GalleristCarDetailsDTO> getSoldCarsByUserId(@PathVariable int userId) {
+
+    return galleristCarService.getSoldCarsByUserId(userId);
+}
+
+@GetMapping("/soldcount/{userId}")
+@Override
+public int getSoldCarCountByUserId(@PathVariable int userId) {
+   return galleristCarService.getSoldCarCountByUserId(userId);
+}
+
+@GetMapping("/saled/new-old/{userId}")
+
+@Override
+public List<GalleristCarDetailsDTO> getNewestSoldCarsByUserId(@PathVariable int userId) {
+    return galleristCarService.getNewestSoldCarsByUserId(userId);
+}
+@GetMapping("/saled/old-new/{userId}")
+
+@Override
+public List<GalleristCarDetailsDTO> getOldestSoldCarsByUserId(@PathVariable int userId) {
+    return galleristCarService.getOldestSoldCarsByUserId(userId);
+}
+@Override
+@GetMapping("/total-earnings/{userId}")
+public java.math.BigDecimal getTotalEarningsByUserIdAndCurrency(
+        @PathVariable int userId, 
+        @RequestParam String currency){
+    
+    return galleristCarService.getTotalEarningsByUserIdAndCurrency(userId, currency);
+}
+
+}

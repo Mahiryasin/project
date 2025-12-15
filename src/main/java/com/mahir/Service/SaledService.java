@@ -58,8 +58,7 @@ public class SaledService {
         }
 
         if (!"SALABLE".equals(car.statusCode)) {
-            System.out.println("Araba satılamaz durumda!");
-            return null;
+            return new SaledDTO("Araba satılamaz durumda!");
         }
 
         String findGalleristSql = "SELECT gallerist_id FROM Gallerist_Car WHERE car_id = ?";
@@ -81,7 +80,7 @@ public class SaledService {
                     .getItems().get(0).getEur();
 
         } catch (Exception e) {
-            System.out.println("mana servisine bağlanırken hata oluştu: " + e.getMessage());
+            System.out.println("Merkez bankası servisine bağlanırken hata oluştu: " + e.getMessage());
             return null;
         }
 
@@ -97,8 +96,7 @@ public class SaledService {
         BigDecimal customerBalanceInTry = convertToTry(customer.amount, customer.currencyCode, usdToTry, eurToTry);
 
         if (customerBalanceInTry.compareTo(carPriceInTry) < 0) {
-            System.out.println("Yetersiz Bakiye!");
-            return null;
+            return new SaledDTO("Yetersiz Bakiye!");
         }
 
         BigDecimal remainingBalanceInTry = customerBalanceInTry.subtract(carPriceInTry);
@@ -148,11 +146,10 @@ public class SaledService {
     }
 
     private static String GetFormat(Date date) {
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-
-        calendar.add(Calendar.DAY_OF_MONTH, -2);
 
         return simpleDateFormat.format(calendar.getTime());
     }

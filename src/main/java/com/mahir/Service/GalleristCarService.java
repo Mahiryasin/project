@@ -18,6 +18,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
 import com.mahir.DTO.GalleristCarRequest;
+import com.mahir.Entity.Car;
 import com.mahir.Entity.GalleristCar;
 import com.mahir.Service.imp.IGalleristCarService;
 import org.springframework.transaction.annotation.Transactional;
@@ -214,4 +215,89 @@ public class GalleristCarService implements IGalleristCarService {
         String deleteCarSql = "DELETE FROM Car WHERE id = ?";
         jdbcTemplate.update(deleteCarSql, carId);
     }
+   @Override
+public List<com.mahir.DTO.GalleristCarDetailsDTO> getSoldCarsByUserId(int userId) {
+
+    String sql = "SELECT " +
+            "g.first_name, g.last_name, " +
+            "c.id, c.plaka, c.brand, c.model, c.production_year, " +
+            "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
+            "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
+
+            "FROM Car c " +
+            "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+            "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+            "WHERE g.user_id = ? " +
+            "AND c.status_code = 'SALED'";
+
+    return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+        return mapToDto(rs);
+    });
+}
+    @Override
+    public int getSoldCarCountByUserId(int userId) {
+        String sql = "SELECT COUNT(*) " +
+                "FROM Car c " +
+                "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+                "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+                "WHERE g.user_id = ? " +
+                "AND c.status_code = 'SALED'";
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        return count != null ? count : 0;
+    }
+
+    @Override
+    public List<com.mahir.DTO.GalleristCarDetailsDTO> getNewestSoldCarsByUserId(int userId) {
+        String sql = "SELECT " +
+                "g.first_name, g.last_name, " +
+                "c.id, c.plaka, c.brand, c.model, c.production_year, " +
+                "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
+                "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
+
+                "FROM Car c " +
+                "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+                "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+                "WHERE g.user_id = ? " +
+                "AND c.status_code = 'SALED' " +
+                "ORDER BY c.create_date DESC"; 
+
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+            return mapToDto(rs);
+        });
+    }
+
+    @Override
+    public List<com.mahir.DTO.GalleristCarDetailsDTO> getOldestSoldCarsByUserId(int userId) {
+        String sql = "SELECT " +
+                "g.first_name, g.last_name, " +
+                "c.id, c.plaka, c.brand, c.model, c.production_year, " +
+                "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
+                "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
+
+                "FROM Car c " +
+                "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+                "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+                "WHERE g.user_id = ? " +
+                "AND c.status_code = 'SALED' " +
+                "ORDER BY c.create_date ASC"; 
+
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+            return mapToDto(rs);
+        });
+    }
+    @Override
+public java.math.BigDecimal getTotalEarningsByUserIdAndCurrency(int userId, String currencyCode) {
+    String sql = "SELECT SUM(c.price) " +
+            "FROM Car c " +
+            "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+            "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+            "WHERE g.user_id = ? " +
+            "AND c.status_code = 'SALED' " +
+            "AND c.currency_code = ?";
+
+    java.math.BigDecimal total = jdbcTemplate.queryForObject(sql, java.math.BigDecimal.class, userId, currencyCode);
+    
+    return total != null ? total : java.math.BigDecimal.ZERO;
+}
 }
