@@ -27,7 +27,6 @@ import com.mahir.Service.imp.IUserService;
 
 public class appConfig {
 
-    // override edilen method bean olarak kullanılamaz !!
      @Autowired
      private  IUserService userService;
    
@@ -35,7 +34,6 @@ public class appConfig {
 
 
      @Bean
-     // usernami iceriye kosul olarak vermemek icin interfaci inner class yaparak veriyoruz
      public UserDetailsService userDetails(){
     return  new UserDetailsService() {
 

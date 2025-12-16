@@ -5,9 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,12 +16,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mahir.DTO.GalleristCarRequest;
+import com.mahir.DTO.GalleristCarDetailsDTO; 
 import com.mahir.Entity.Car;
 import com.mahir.Entity.GalleristCar;
 import com.mahir.Service.imp.IGalleristCarService;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class GalleristCarService implements IGalleristCarService {
@@ -44,9 +45,31 @@ public class GalleristCarService implements IGalleristCarService {
         }
     };
 
+    private GalleristCarDetailsDTO mapToDto(ResultSet rs) throws SQLException {
+        GalleristCarDetailsDTO dto = new GalleristCarDetailsDTO();
+
+        dto.setGalleristFirstName(rs.getString("first_name"));
+        dto.setGalleristLastName(rs.getString("last_name"));
+
+        dto.setCarId(rs.getInt("id"));
+        dto.setPlaka(rs.getString("plaka"));
+        dto.setBrand(rs.getString("brand"));
+        dto.setModel(rs.getString("model"));
+        dto.setProductionYear(rs.getInt("production_year"));
+        dto.setPrice(rs.getBigDecimal("price"));
+        dto.setDamagePrice(rs.getBigDecimal("damage_price"));
+        dto.setCurrencyCode(rs.getString("currency_code"));
+        dto.setStatusCode(rs.getString("status_code"));
+        dto.setImageUrl(rs.getString("image_url"));
+
+        if (rs.getTimestamp("create_date") != null) {
+            dto.setCreateDate(rs.getTimestamp("create_date").toLocalDateTime());
+        }
+        return dto;
+    }
+
     @Override
     public GalleristCar saveGalleristCar(GalleristCarRequest galleristCarRequest) {
-
         String findGalleristIdSql = "SELECT id FROM Gallerist WHERE user_id = ?";
         Integer galleristId = null;
 
@@ -105,19 +128,8 @@ public class GalleristCarService implements IGalleristCarService {
     }
 
     @Override
-    public List<com.mahir.DTO.GalleristCarDetailsDTO> getSalableCarsByUserId(int userId) {
-
-        String sql = "SELECT " +
-                "g.first_name, g.last_name, " +
-                "c.id, c.plaka, c.brand, c.model, c.production_year, " +
-                "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
-                "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
-
-                "FROM Gallerist_Car gc " +
-                "INNER JOIN Gallerist g ON gc.gallerist_id = g.id " +
-                "INNER JOIN Car c ON gc.car_id = c.id " +
-                "WHERE g.user_id = ? " +
-                "AND c.status_code = 'SALABLE'";
+    public List<GalleristCarDetailsDTO> getSalableCarsByUserId(int userId) {
+        String sql = "SELECT * FROM V_SalableCarDetails WHERE user_id = ?";
 
         return jdbcTemplate.query(sql, new Object[] { userId }, (rs, rowNum) -> {
             return mapToDto(rs);
@@ -138,14 +150,12 @@ public class GalleristCarService implements IGalleristCarService {
     }
 
     @Override
-    public List<com.mahir.DTO.GalleristCarDetailsDTO> getNewestCarsByUserId(int userId) {
-
+    public List<GalleristCarDetailsDTO> getNewestCarsByUserId(int userId) {
         String sql = "SELECT " +
                 "g.first_name, g.last_name, " +
                 "c.id, c.plaka, c.brand, c.model, c.production_year, " +
                 "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
                 "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
-
                 "FROM Gallerist_Car gc " +
                 "INNER JOIN Gallerist g ON gc.gallerist_id = g.id " +
                 "INNER JOIN Car c ON gc.car_id = c.id " +
@@ -159,14 +169,12 @@ public class GalleristCarService implements IGalleristCarService {
     }
 
     @Override
-    public List<com.mahir.DTO.GalleristCarDetailsDTO> getOldestCarsByUserId(int userId) {
-
+    public List<GalleristCarDetailsDTO> getOldestCarsByUserId(int userId) {
         String sql = "SELECT " +
                 "g.first_name, g.last_name, " +
                 "c.id, c.plaka, c.brand, c.model, c.production_year, " +
                 "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
                 "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
-
                 "FROM Gallerist_Car gc " +
                 "INNER JOIN Gallerist g ON gc.gallerist_id = g.id " +
                 "INNER JOIN Car c ON gc.car_id = c.id " +
@@ -179,33 +187,9 @@ public class GalleristCarService implements IGalleristCarService {
         });
     }
 
-    private com.mahir.DTO.GalleristCarDetailsDTO mapToDto(ResultSet rs) throws SQLException {
-        com.mahir.DTO.GalleristCarDetailsDTO dto = new com.mahir.DTO.GalleristCarDetailsDTO();
-
-        dto.setGalleristFirstName(rs.getString("first_name"));
-        dto.setGalleristLastName(rs.getString("last_name"));
-        dto.setCarId(rs.getInt("id"));
-        dto.setPlaka(rs.getString("plaka"));
-        dto.setBrand(rs.getString("brand"));
-        dto.setModel(rs.getString("model"));
-        dto.setProductionYear(rs.getInt("production_year"));
-        dto.setPrice(rs.getBigDecimal("price"));
-        dto.setDamagePrice(rs.getBigDecimal("damage_price"));
-        dto.setCurrencyCode(rs.getString("currency_code"));
-        dto.setStatusCode(rs.getString("status_code"));
-        dto.setImageUrl(rs.getString("image_url"));
-
-        if (rs.getTimestamp("create_date") != null) {
-            dto.setCreateDate(rs.getTimestamp("create_date").toLocalDateTime());
-        }
-
-        return dto;
-    }
-
     @Override
     @Transactional
     public void deleteCarById(int carId) {
-
         String deleteRelationSql = "DELETE FROM Gallerist_Car WHERE car_id = ?";
         jdbcTemplate.update(deleteRelationSql, carId);
 
@@ -215,25 +199,25 @@ public class GalleristCarService implements IGalleristCarService {
         String deleteCarSql = "DELETE FROM Car WHERE id = ?";
         jdbcTemplate.update(deleteCarSql, carId);
     }
-   @Override
-public List<com.mahir.DTO.GalleristCarDetailsDTO> getSoldCarsByUserId(int userId) {
 
-    String sql = "SELECT " +
-            "g.first_name, g.last_name, " +
-            "c.id, c.plaka, c.brand, c.model, c.production_year, " +
-            "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
-            "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
+    @Override
+    public List<GalleristCarDetailsDTO> getSoldCarsByUserId(int userId) {
+        String sql = "SELECT " +
+                "g.first_name, g.last_name, " +
+                "c.id, c.plaka, c.brand, c.model, c.production_year, " +
+                "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
+                "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
+                "FROM Car c " +
+                "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
+                "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
+                "WHERE g.user_id = ? " +
+                "AND c.status_code = 'SALED'";
 
-            "FROM Car c " +
-            "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
-            "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
-            "WHERE g.user_id = ? " +
-            "AND c.status_code = 'SALED'";
+        return jdbcTemplate.query(sql, new Object[] { userId }, (rs, rowNum) -> {
+            return mapToDto(rs);
+        });
+    }
 
-    return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
-        return mapToDto(rs);
-    });
-}
     @Override
     public int getSoldCarCountByUserId(int userId) {
         String sql = "SELECT COUNT(*) " +
@@ -248,56 +232,53 @@ public List<com.mahir.DTO.GalleristCarDetailsDTO> getSoldCarsByUserId(int userId
     }
 
     @Override
-    public List<com.mahir.DTO.GalleristCarDetailsDTO> getNewestSoldCarsByUserId(int userId) {
+    public List<GalleristCarDetailsDTO> getNewestSoldCarsByUserId(int userId) {
         String sql = "SELECT " +
                 "g.first_name, g.last_name, " +
                 "c.id, c.plaka, c.brand, c.model, c.production_year, " +
                 "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
                 "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
-
                 "FROM Car c " +
                 "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
                 "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
                 "WHERE g.user_id = ? " +
                 "AND c.status_code = 'SALED' " +
-                "ORDER BY c.create_date DESC"; 
+                "ORDER BY c.create_date DESC";
 
-        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, new Object[] { userId }, (rs, rowNum) -> {
             return mapToDto(rs);
         });
     }
 
     @Override
-    public List<com.mahir.DTO.GalleristCarDetailsDTO> getOldestSoldCarsByUserId(int userId) {
+    public List<GalleristCarDetailsDTO> getOldestSoldCarsByUserId(int userId) {
         String sql = "SELECT " +
                 "g.first_name, g.last_name, " +
                 "c.id, c.plaka, c.brand, c.model, c.production_year, " +
                 "c.price, c.damage_price, c.currency_code, c.status_code, c.create_date, " +
                 "(SELECT TOP 1 image_url FROM CarImage ci WHERE ci.car_id = c.id) AS image_url " +
-
                 "FROM Car c " +
                 "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
                 "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
                 "WHERE g.user_id = ? " +
                 "AND c.status_code = 'SALED' " +
-                "ORDER BY c.create_date ASC"; 
+                "ORDER BY c.create_date ASC";
 
-        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, new Object[] { userId }, (rs, rowNum) -> {
             return mapToDto(rs);
         });
     }
-    @Override
-public java.math.BigDecimal getTotalEarningsByUserIdAndCurrency(int userId, String currencyCode) {
-    String sql = "SELECT SUM(c.price) " +
-            "FROM Car c " +
-            "INNER JOIN Saled_Car sc ON sc.car_id = c.id " +
-            "INNER JOIN Gallerist g ON g.id = sc.gallerist_id " +
-            "WHERE g.user_id = ? " +
-            "AND c.status_code = 'SALED' " +
-            "AND c.currency_code = ?";
 
-    java.math.BigDecimal total = jdbcTemplate.queryForObject(sql, java.math.BigDecimal.class, userId, currencyCode);
-    
-    return total != null ? total : java.math.BigDecimal.ZERO;
-}
+    @Override
+    public BigDecimal getTotalEarningsByUserIdAndCurrency(int userId, String currencyCode) {
+
+        String sql = "EXEC SP_CalculateTotalEarnings ?, ?";
+
+        try {
+            BigDecimal total = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId, currencyCode);
+            return total != null ? total : BigDecimal.ZERO;
+        } catch (EmptyResultDataAccessException e) {
+            return BigDecimal.ZERO;
+        }
+    }
 }
